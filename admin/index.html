@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>CRUD Blog use Vue.js & PHP & MySQLi</title>
+<link href="/assets/styles/normalize.css" rel="stylesheet">
+<link href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" rel="stylesheet">
+<link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+<div id="app" class="antialiased">
+
+	<header class="flex bg-gray-500 p-6 justify-between items-center">
+		<div class="text-white text-2xl">CRUD Blog use Vue.js & PHP & MySQLi</div>
+		<a href="/" class="bg-white hover:bg-transparent hover:text-white border-white border-solid border text-gray-500 rounded py-2 px-4 inline-block">Sign out</a>
+	</header>
+
+	<div class="container p-6 m-auto">
+		<a href="#" class="bg-blue-500 hover:bg-blue-700 rounded py-2 px-4 text-white inline-block mb-2" @click="showCreateModal=true;">新規投稿</a>
+		<table class="w-full">
+			<thead>
+				<tr>
+					<th class="py-2 px-4 bg-gray-500 text-white">ID</th>
+					<th class="py-2 px-4 bg-gray-500 text-white">投稿日</th>
+					<th class="py-2 px-4 bg-gray-500 text-white">タイトル</th>
+					<th class="py-2 px-4 bg-gray-500 text-white">内容</th>
+					<th class="py-2 px-4 bg-gray-500 text-white">編集</th>
+					<th class="py-2 px-4 bg-gray-500 text-white">削除</th>
+				</tr>
+			</thead>
+			<tbody v-for="post in posts">
+				<tr>
+					<td class="border py-2 px-4 text-center">{{ post.id }}</td>
+					<td class="border py-2 px-4">{{ post.date }}</td>
+					<td class="border py-2 px-4">{{ post.title }}</td>
+					<td class="border py-2 px-4">{{ post.body }}</td>
+					<td class="border py-2 px-4 text-center"><a href="#" class="text-blue-500 hover:text-blue-700 text-white" @click="showUpdateModal=true; selectPost(post);"><i class="far fa-edit"></i></a></td>
+					<td class="border py-2 px-4 text-center"><a href="#" class="text-red-500 hover:text-red-700 text-white" @click="showDeleteModal=true; selectPost(post);"><i class="far fa-trash-alt"></i></a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- showCreateModal -->
+	<div class="fixed top-0 right-0 bottom-0 left-0 m-auto flex items-center justify-center" v-if="showCreateModal">
+		<div class="absolute w-full h-full bg-black opacity-50"></div>
+		<div class="bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+			<div class="p-6">
+				<div class="flex justify-between items-center pb-3 text-gray-700">
+					<p class="text-xl font-bold">新規投稿</p>
+					<div class="cursor-pointer z-50 text-2xl" @click="showCreateModal=false;"><i class="far fa-times-circle"></i></div>
+				</div>
+				<form action="#" method="post">
+					<div class="mb-4">
+						<label for="title" class="block text-sm mb-2">タイトル</label>
+						<input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline" id="title" placeholder="" v-model="newPost.title">
+					</div>
+					<div class="mb-6">
+						<label for="body" class="block text-sm mb-2">内容</label>
+						<textarea class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline" name="" id="body" cols="30" rows="10" v-model="newPost.body"></textarea>
+					</div>
+					<div class="flex items-center justify-between">
+						<button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded" @click="showCreateModal=false; createPosts();">新規投稿</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- showUpdateModal -->
+	<div class="fixed top-0 right-0 bottom-0 left-0 m-auto flex items-center justify-center" v-if="showUpdateModal">
+		<div class="absolute w-full h-full bg-black opacity-50"></div>
+		<div class="bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+			<div class="p-6">
+				<div class="flex justify-between items-center pb-3 text-gray-700">
+					<p class="text-xl font-bold">記事編集</p>
+					<div class="cursor-pointer z-50 text-2xl" @click="showUpdateModal=false;"><i class="far fa-times-circle"></i></div>
+				</div>
+				<form action="#" method="post">
+					<div class="mb-4">
+						<label for="date" class="block text-sm mb-2">投稿日</label>
+						<input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline" id="date" placeholder="" v-model="currentPost.date">
+					</div>
+					<div class="mb-4">
+						<label for="title" class="block text-sm mb-2">タイトル</label>
+						<input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline" id="title" placeholder="" v-model="currentPost.title">
+					</div>
+					<div class="mb-6">
+						<label for="body" class="block text-sm mb-2">内容</label>
+						<textarea class="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline" name="" id="body" cols="30" rows="10">{{ currentPost.body }}</textarea>
+					</div>
+					<div class="flex items-center justify-between">
+						<button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded" @click="showUpdateModal=false; updatePost();">記事更新</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- showDeleteModal -->
+	<div class="fixed top-0 right-0 bottom-0 left-0 m-auto flex items-center justify-center" v-if="showDeleteModal">
+		<div class="absolute w-full h-full bg-black opacity-50"></div>
+		<div class="bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+			<div class="p-6">
+				<div class="flex justify-between items-center pb-3 text-gray-700">
+					<p class="text-xl font-bold">記事削除</p>
+					<div class="cursor-pointer z-50 text-2xl" @click="showDeleteModal=false;"><i class="far fa-times-circle"></i></div>
+				</div>
+				<div class="mb-4">
+					'{{ currentPost.title }}' を本当に削除してもよろしいですか？
+				</div>
+				<div class="flex items-center">
+					<a href="#" class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded mr-4" @click="showDeleteModal=false; deletePost();">削除</a>
+					<a href="#" class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded" @click="showDeleteModal=false;">キャンセル</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/ja.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="/assets/scripts/main.js"></script>
+</body>
+</html>
